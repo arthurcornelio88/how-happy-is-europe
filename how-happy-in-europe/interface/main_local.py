@@ -14,7 +14,7 @@ from sklearn.pipeline import Pipeline
 # import linear regression model
 from sklearn.linear_model import LinearRegression
 
-
+#hello
 # Row for prediction
 X_PRED = pd.DataFrame([np.array(["FR",1,1,1,1,1,6,1,1,1,1])], columns=['cntry', \
     'gndr', 'sclmeet', 'inprdsc', 'sclact', 'health', 'rlgdgr','dscrgrp',     \
