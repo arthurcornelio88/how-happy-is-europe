@@ -18,33 +18,49 @@ from sklearn.metrics import r2_score
 
 
 # Row for prediction
-X_PRED = pd.DataFrame([np.array(["FR",4,3,2,5,7,6,2,4,6])], columns=['cntry', \
+X_PRED = pd.DataFrame([np.array(["FR",1,1,1,1,1,6,1,1,1])], columns=['cntry', \
     'gndr', 'sclmeet', 'inprdsc', 'sclact', 'health', 'rlgdgr','dscrgrp',     \
     'ctzcntr', 'brncntr'])
 
-# TODO:
+# TODO: 0-3 extremely unhappy, 4-7:neutral, 8-10:extremely happy
 STATE_OF_HAPPINESS = [
-    "",
-    "",
+    "Extremely unhappy",
+    "Extremely unhappy",
+    "Extremely unhappy",
+    "Extremely unhappy",
+    "Neutral",
+    "Neutral",
+    "Neutral",
+    "Neutral",
+    "Extremely happy",
+    "Extremely happy",
+    "Extremely happy"
 ]
-def data_cleaning(x):
+def data_cleaning(df):
 
     # remove the first column
-    df = df.drop(df.columns[0], axis=1)
-    return x
+    df_cleaned = df.drop(df.columns[0], axis=1)
+    return df_cleaned
 
 def load_data():
 
     #load the basemodel dataset
     df = pd.read_csv("arthurcornelio88-notebooks/20240319_ESS10_baseline-model_arthurcornelio88.csv")
-    df_cleaned = data_cleaning(df)
-    ###Seperate features and target
-    return df_cleaned
 
-def preprocess(clean_data:pd.DataFrame)-> np.array:
+    return df
 
+def preprocess(clean_data:pd.DataFrame, pred:int, cleaned_full_data:pd.DataFrame=None)-> np.array:
+
+    # TODO : can I do this ? I`m just replacing the row by all dataset but I want to treat row with the columns from the big one
+    #get dummies...
+    if pred == 1 :
+        clean_data = clean_data
+    elif pred == 0:
+        clean_data = cleaned_full_data
+
+    X = clean_data
     #One hot encoding of cntry, ctzcntr, brncntr, gndr, dscrgrp
-    X = pd.get_dummies(clean_data, columns=['cntry'], drop_first=True)
+    X = pd.get_dummies(X, columns=['cntry'], drop_first=True)
     X = pd.get_dummies(X, columns=['ctzcntr'], drop_first=True)
     X = pd.get_dummies(X, columns=['brncntr'], drop_first=True)
     X = pd.get_dummies(X, columns=['gndr'], drop_first=True)
@@ -80,34 +96,45 @@ def preprocess(clean_data:pd.DataFrame)-> np.array:
 
     #Replace all True with 1 and False with 0
     X = X.replace([True, False], [1, 0])
+    df_processed = X
 
     print("✅ preprocess_and_train() done")
-    return X
 
+    return df_processed
 
-def train(df):
+def train(df_processed):
     # no need for evaluation because it was already done in notebook experimentation
     #X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-    X, y = df.iloc[:, :-1], df.iloc[:, -1]
+    X, y = df_processed.iloc[:, :-1], df_processed.iloc[:, -1]
     # Training the linear regression model
     model = LinearRegression()
-    model.fit(X, y)
+    model = model.fit(X, y)
 
     return model
 
 def pred(X_pred):
 
     df = load_data()
-    X_preproc = preprocess(df)
+    df_cleaned = data_cleaning(df)
+    breakpoint()
+    X_preproc = preprocess(df_cleaned,1)
+
     # Making predictions
     model = train(X_preproc)
-    y_pred = model.predict(X_pred)
+
+    #preprocessing the survey-answers to be predicted (one row, one person)
+    #with the full dataset and then just taking
+    x_pred_preproc = preprocess(X_pred,0,df_cleaned).iloc[:,:-1]
+
+    #y_pred = model.predict(x_pred_preproc)
+    y_pred = model.predict(X_PRED)
 
     # Rounding the predictions to the nearest integer and constraining them to the range [0, 10]
     y_pred_constrained = np.clip(np.round(y_pred), 0, 10)
 
+    print(y_pred_constrained)
     print(f"You are {STATE_OF_HAPPINESS[y_pred_constrained]}." )
-    return y_pred_constrained
+    #return y_pred_constrained
 
 
 if __name__ == '__main__':
