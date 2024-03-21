@@ -1,4 +1,4 @@
-FROM #? Python 3.10.6
+FROM python:3.10.6-buster
 
 COPY how-happy-in-europe /how-happy-in-europe
 COPY requirements.txt /requirements.txt
