@@ -20,7 +20,6 @@ X_PRED = pd.DataFrame([np.array(["FR",1,1,1,1,1,6,1,1,1,1])], columns=['cntry', 
     'gndr', 'sclmeet', 'inprdsc', 'sclact', 'health', 'rlgdgr','dscrgrp',     \
     'ctzcntr', 'brncntr', 'happy'])
 
-# TODO: 0-3 extremely unhappy, 4-7:neutral, 8-10:extremely happy
 STATE_OF_HAPPINESS = [
     "Extremely unhappy",
     "Extremely unhappy",
