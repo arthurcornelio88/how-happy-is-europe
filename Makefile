@@ -17,6 +17,9 @@ reinstall_package:
 run_pred:
 	python -c 'from howhappyineurope.interface.main_local import pred; pred()'
 
+run_api:
+	uvicorn howhappyineurope.api.fast:app --reload
+
 # run_evaluate:
 # 	python -c 'from taxifare.interface.main import evaluate; evaluate()'
 

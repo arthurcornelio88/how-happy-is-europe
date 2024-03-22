@@ -5,8 +5,6 @@ from sklearn.preprocessing import OrdinalEncoder, StandardScaler, FunctionTransf
 from sklearn.compose import ColumnTransformer, make_column_transformer
 from sklearn.pipeline import Pipeline
 
-
-
 # from main_local
 
 def num_replacer(df): #, col):

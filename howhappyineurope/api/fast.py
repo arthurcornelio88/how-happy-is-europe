@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from howhappyineurope.ml_logic.registry import load_model
 from howhappyineurope.ml_logic.preprocessor import pipe_preprocess
 from howhappyineurope.params import STATE_OF_HAPPINESS
+import pickle
 
 app = FastAPI()
 app.state.model = load_model()
@@ -30,13 +31,26 @@ def predict(
         rlgdgr: int, # 6
         dscrgrp: int, # 2
         ctzcntr: int, # 4
-        brncntr: int
-    ):      # 6
+        brncntr: int, #
+        happy: int
+    ):
     """
     list input from user to predict their happiness. list of features needed for prediction.
     """
 
-    X_pred = pd.DataFrame(locals(), index=[0])
+    X_pred = pd.DataFrame(dict(
+        cntry=cntry, # FR
+        gndr=gndr, # 4
+        sclmeet=sclmeet, # 3
+        inprdsc=inprdsc, # 2
+        sclact=sclact, # 5
+        health=health, # 7
+        rlgdgr=rlgdgr, # 6
+        dscrgrp=dscrgrp, # 2
+        ctzcntr=ctzcntr, # 4
+        brncntr=brncntr, #
+        happy=happy), index=[0])
+
 
     # load the model - store it in 'model' folder. api will access folder and load it from there. put this file inside docker image
     # TODO ARTHUR : function in registry.py? that loads the pickle in model.py? because model is already trained !
@@ -44,7 +58,12 @@ def predict(
     assert model is not None
 
     # preprocess input data
-    x_pred_preproc = pipe_preprocess(X_pred)
+
+    my_pipeline = pickle.load(open("/home/arthurcornelio/code/arthurcornelio88/how-happy-in-europe/pipelines/pipeline.pkl","rb"))
+
+    x_pred_preproc = my_pipeline.transform(X_pred)
+
+    #import ipdb; ipdb.set_trace()
 
     # Making the prediction
     y_pred = model.predict(x_pred_preproc[:, :-1])[0]
