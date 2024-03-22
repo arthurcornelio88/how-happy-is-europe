@@ -84,7 +84,22 @@ def train(df_processed):
     # no need for evaluation because it was already done in notebook experimentation
     #X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
     X, y = df_processed[:, :-1], df_processed[:, -1]
+
+    # TODO : maybe when model enhanced
+    #1) build evaluate_model function in model.py
+    # metrics_dict = evaluate_model(model=model, X=X_new, y=y_new)
+    #2) set params
+    # params = dict(
+    #     context="train",
+    #     training_set_size=DATA_SIZE,
+    #     row_count=len(X_train_processed),
+    #3) already done in registry.py
+    #save_results(params=params, metrics=metrics_dict)
+
+
     # Training the linear regression model
+    # TODO : create model.py
+    #model = load_model()
     model = LinearRegression()
     model = model.fit(X, y)
 
@@ -108,9 +123,18 @@ def pred(X_pred):
     # Training model
     model = train(X_preproc)
 
+    # TODO : choose method of saving
     #saving trained model as pickle file
     with open("model.pkl", "wb") as file:
         pickle.dump(model, file)
+    # Save model weight on the hard drive (and optionally on GCS too!)
+    save_model(model=model)
+
+    # TODO : when we have the enhanced model
+    # Save results on the hard drive using taxifare.ml_logic.registry
+    #save_results(params=params, metrics=dict(mae=val_mae))
+
+
 
     # Processing the test data
     x_pred_preproc = preproc.transform(X_pred)
