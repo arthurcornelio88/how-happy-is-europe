@@ -1,8 +1,10 @@
 import pandas as pd
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+# TODO : from taxifare.ml_logic.registry import load_model, save_model
 
 app = FastAPI()
+app.state.model = load_model()
 
 # Allowing all middleware is optional, but good practice for dev purposes
 app.add_middleware(
@@ -35,13 +37,17 @@ def predict(
     X_pred = pd.DataFrame(locals(), index=[0])
     #OR
     X_pred = pd.DataFrame(dict(
-        pickup_datetime=pickup_datetime,
-        pickup_longitude=pickup_longitude,
-        pickup_latitude=pickup_latitude,
-        dropoff_longitude=dropoff_longitude,
-        dropoff_latitude=dropoff_latitude,
-        passenger_count=passenger_count,
-        ), index=[0])
+    cntry=cntry, # FR
+    gndr=gndr, # 4
+    sclmeet=sclmeet, # 3
+    inprdsc=inprdsc, # 2
+    sclact=sclact, # 5
+    health=health, # 7
+    rlgdgr=rlgdgr, # 6
+    dscrgrp=dscrgrp, # 2
+    ctzcntr=ctzcntr, # 4
+    brncntr=brncntr
+    ), index=[0])
 
     # load the model - store it in 'model' folder. api will access folder and load it from there. put this file inside docker image
     # TODO : function in registry.py? that loads the pickle in model.py? because model is already trained !

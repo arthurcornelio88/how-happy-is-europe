@@ -3,6 +3,7 @@
 #libraries
 import numpy as np
 import pandas as pd
+import pickle
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn import datasets
@@ -10,6 +11,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import OrdinalEncoder, StandardScaler, FunctionTransformer, OneHotEncoder
 from sklearn.compose import ColumnTransformer, make_column_transformer
 from sklearn.pipeline import Pipeline
+
 
 # import linear regression model
 from sklearn.linear_model import LinearRegression
@@ -99,8 +101,16 @@ def pred(X_pred):
         # creating dataset processed (X_preproc)
     preproc, X_preproc = pipe_preprocess(df_cleaned)
 
+    #saving process pipeline as pickle file
+    with open("pipeline.pkl", "wb") as file:
+        pickle.dump(preproc, file)
+
     # Training model
     model = train(X_preproc)
+
+    #saving trained model as pickle file
+    with open("model.pkl", "wb") as file:
+        pickle.dump(model, file)
 
     # Processing the test data
     x_pred_preproc = preproc.transform(X_pred)
