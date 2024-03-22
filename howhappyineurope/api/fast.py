@@ -1,7 +1,7 @@
 import pandas as pd
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-# TODO : from taxifare.ml_logic.registry import load_model, save_model
+from how-happy-in-europe.ml_logic.registry import load_model, save_model
 
 app = FastAPI()
 app.state.model = load_model()
@@ -33,7 +33,7 @@ def predict(
     list input from user to predict their happiness. list of features needed for prediction.
     """
 
-    # TODO: which one to assign X_pred ?
+    # TODO KAY: which one to assign X_pred ?
     X_pred = pd.DataFrame(locals(), index=[0])
     #OR
     X_pred = pd.DataFrame(dict(
@@ -50,7 +50,7 @@ def predict(
     ), index=[0])
 
     # load the model - store it in 'model' folder. api will access folder and load it from there. put this file inside docker image
-    # TODO : function in registry.py? that loads the pickle in model.py? because model is already trained !
+    # TODO ARTHUR : function in registry.py? that loads the pickle in model.py? because model is already trained !
     model = app.state.model
     assert model is not None
 
@@ -59,14 +59,13 @@ def predict(
         # x_pred_preproc = preproc.transform(X_pred)
     x_pred_preproc = preprocess_features(X_pred)
 
-
     # Making the prediction
     y_pred = model.predict(x_pred_preproc[:, :-1])[0]
 
     # Rounding the predictions to the nearest integer and constraining them to the range [0, 10]
     y_pred_constrained = int(np.clip(np.round(y_pred), 0, 10))
 
-    # TODO: create the STATE_OF_HAPPINESS variable in .env or elsewhere
+    # TODO: create the STATE_OF_HAPPINESS variable in params.py
     print(f"You are {STATE_OF_HAPPINESS[y_pred_constrained]}." )
     #return y_pred_constrained
 
@@ -75,3 +74,7 @@ def predict(
     prediction_done = f'0 to 10: {y_pred_constrained} - {STATE_OF_HAPPINESS[y_pred_constrained]}'
 
     return dict(fare_amount=str(prediction_done))
+
+@app.get("/")
+def root():
+    return dict(greeting="Hello")
