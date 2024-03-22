@@ -1,7 +1,10 @@
+import numpy as np
 import pandas as pd
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from howhappyineurope.ml_logic.registry import load_model
+from howhappyineurope.ml_logic.preprocessor import pipe_preprocess
+from howhappyineurope.params import STATE_OF_HAPPINESS
 
 app = FastAPI()
 app.state.model = load_model()
@@ -41,9 +44,7 @@ def predict(
     assert model is not None
 
     # preprocess input data
-    # TODO: create a preprocess_features.py that will handle that
-        # x_pred_preproc = preproc.transform(X_pred)
-    x_pred_preproc = preprocess_features(X_pred)
+    x_pred_preproc = pipe_preprocess(X_pred)
 
     # Making the prediction
     y_pred = model.predict(x_pred_preproc[:, :-1])[0]
