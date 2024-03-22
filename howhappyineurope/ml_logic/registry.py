@@ -1,17 +1,10 @@
-import glob
 import os
 import time
 import pickle
 
 from colorama import Fore, Style
-from tensorflow import keras
-from google.cloud import storage
 
 from howhappyineurope.params import *
-import mlflow
-from mlflow.tracking import MlflowClient
-
-#test
 
 def save_results(params: dict, metrics: dict) -> None:
     """
@@ -42,17 +35,20 @@ def save_model(model):
     Persist trained model locally on the hard drive at f"{LOCAL_REGISTRY_PATH}/models/{timestamp}.h5"
     """
 
-    timestamp = time.strftime("%Y%m%d-%H%M%S")
-
     # Save model locally
-    model_path = os.path.join(LOCAL_REGISTRY_PATH, "models", f"{timestamp}.h5")
-    model.save(model_path)
+    model_path = os.path.join("models", f"model.pkl")
+    dir_path = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+    final_path = os.path.join(dir_path, model_path)
+    print(final_path)
+
+    with open(final_path, "wb") as file:
+        pickle.dump(model, file)
 
     print("✅ Model saved locally")
 
     return None
 
-def load_model(stage="Production"):
+def load_model():
     """
     Return a saved model:
     - locally (latest one in alphabetical order)
@@ -61,7 +57,12 @@ def load_model(stage="Production"):
     print(Fore.BLUE + f"\nLoad latest model from local registry..." + Style.RESET_ALL)
 
     # Get the latest model version name by the timestamp on disk
-    local_model_directory = os.path.join(LOCAL_REGISTRY_PATH, "models")
+    model_path = os.path.join("models", f"model.pkl")
+    dir_path = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+    local_model_directory = os.path.join(dir_path, model_path)
+    print(model_path)
+    print(dir_path)
+    print(local_model_directory)
 
     print(Fore.BLUE + f"\nLoad latest model from disk..." + Style.RESET_ALL)
 

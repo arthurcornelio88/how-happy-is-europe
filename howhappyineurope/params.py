@@ -1,5 +1,6 @@
 import os
 import numpy as np
+import pandas as pd
 
 ##################  CONSTANTS  #####################
 LOCAL_DATA_PATH = os.path.join(os.path.expanduser('~'), ".lewagon", "mlops", "data")
@@ -18,3 +19,7 @@ STATE_OF_HAPPINESS = [
     "Extremely happy",
     "Extremely happy"
 ]
+
+X_PRED = pd.DataFrame([np.array(["FR",1,1,1,1,1,6,1,1,1,1])], columns=['cntry', \
+'gndr', 'sclmeet', 'inprdsc', 'sclact', 'health', 'rlgdgr','dscrgrp',     \
+'ctzcntr', 'brncntr', 'happy'])
