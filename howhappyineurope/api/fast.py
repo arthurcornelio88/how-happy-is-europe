@@ -1,7 +1,7 @@
 import pandas as pd
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from howhappyineurope.ml_logic.registry import load_model, save_model
+from howhappyineurope.ml_logic.registry import load_model
 
 app = FastAPI()
 app.state.model = load_model()
