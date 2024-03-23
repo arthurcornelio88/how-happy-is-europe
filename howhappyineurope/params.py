@@ -19,3 +19,5 @@ STATE_OF_HAPPINESS = [
 X_PRED = pd.DataFrame([np.array(["FR",1,1,1,1,1,6,1,1,1,1])], columns=['cntry', \
 'gndr', 'sclmeet', 'inprdsc', 'sclact', 'health', 'rlgdgr','dscrgrp',     \
 'ctzcntr', 'brncntr', 'happy'])
+
+GAR_IMAGE="how-happy-in-europe"

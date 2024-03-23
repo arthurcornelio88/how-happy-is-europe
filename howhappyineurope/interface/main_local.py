@@ -8,10 +8,10 @@ from howhappyineurope.params import *
 import numpy as np
 import pandas as pd
 import pickle
-import matplotlib.pyplot as plt
-import seaborn as sns
-from sklearn import datasets
-from sklearn.model_selection import train_test_split
+#import matplotlib.pyplot as plt
+#import seaborn as sns
+#from sklearn import datasets
+#from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import OrdinalEncoder, StandardScaler, FunctionTransformer, OneHotEncoder
 from sklearn.compose import ColumnTransformer, make_column_transformer
 from sklearn.pipeline import Pipeline
