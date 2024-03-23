@@ -59,7 +59,7 @@ def predict(
 
     # preprocess input data
 
-    my_pipeline = pickle.load(open("/home/arthurcornelio/code/arthurcornelio88/how-happy-in-europe/pipelines/pipeline.pkl","rb"))
+    my_pipeline = pickle.load(open("/pipelines/pipeline.pkl","rb"))
 
     x_pred_preproc = my_pipeline.transform(X_pred)
 
