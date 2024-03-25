@@ -55,14 +55,15 @@ def evaluate(model, X_test, y_test):
 
 def pred(X_pred=X_PRED):
     #import ipdb; ipdb.set_trace()
-    df, features_table = load_data()
-    df_cleaned = data_cleaning(df)
-    df_reduce = reduce_happiness_categories(FEATURES_DICT, df_cleaned)
+    df = load_data()
+    df = data_cleaning(df)
+    df = reduce_happiness_categories(FEATURES_DICT, df)
 
-    df_preproc = pipe_preprocess(df_reduce)
-    X_train, X_test, y_train, y_test = split(df_preproc)
+    df_preproc = pipe_preprocess(df)
+    X_train, _, _, _ = split(df_preproc)
 
     # Training model
+    # This is not supposed to be here
     model = train(X_train)
 
     # TODO : choose method of saving
@@ -78,6 +79,8 @@ def pred(X_pred=X_PRED):
     # Making the prediction
     y_pred = model.predict(x_pred_preproc[:, :-1])[0]
 
+
+    # Post process
     print(y_pred)
     # TODO
     # evaluate

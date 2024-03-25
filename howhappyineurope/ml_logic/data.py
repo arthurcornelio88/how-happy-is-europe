@@ -13,15 +13,12 @@ def load_data():
         "20240319_ESS10_manually-filtered_arthurcornelio88.csv"
     ).reset_index(drop=True)
     #load the dictionary with the best features
-    with open("features_table.json", 'r') as file:
-        features_tables = json.load(file)
-
-    return data, features_tables
+    return data
 
 def data_cleaning(data):
     # clean undesired rows and the target "happy"
     data_cleaned = data.drop("Unnamed: 0", axis=1)
-    data_cleaned = data[~data["happy"].isin([77, 88, 99])]
+    data_cleaned = data_cleaned[~data_cleaned["happy"].isin([77, 88, 99])]
     return data_cleaned
 
 def json_to_df(features_json: Dict, feature: str) -> pd.DataFrame:
@@ -101,7 +98,6 @@ def remove_star_vals(df: pd.DataFrame, feature: str) -> pd.DataFrame:
         A DataFrame excluding rows with placeholder descriptions for the specified feature.
     """
     mask = df[feature+"_desc"] == "*"
-    print(f"{feature} %rows: " + str(len(df[mask]) / len(df) * 100))
     return df[~mask]
 
 def create_map(arr: np.ndarray) -> Dict:
@@ -116,12 +112,10 @@ def create_map(arr: np.ndarray) -> Dict:
     return dict_map
 
 def reduce_happiness_categories(FEATURES_DICT, data):
-    aux_data = data[FEATURES_DICT.keys()].copy()
+    data_cleaned = data[FEATURES_DICT.keys()].copy()
     reduce_class_map = {
-    0: 0, 1: 0, 2: 0, 3: 0,
-    4: 1, 5: 1, 6: 1, 7: 1,
-    8: 2, 9: 2, 10: 2}
-    aux_data["happy_reduced"] = aux_data["happy"].replace(reduce_class_map)
-    aux_data = aux_data.reset_index(drop=True)
-    data_cleaned = aux_data.copy()
-    return data_cleaned
+        0: 0, 1: 0, 2: 0, 3: 0,
+        4: 1, 5: 1, 6: 1, 7: 1,
+        8: 2, 9: 2, 10: 2}
+    data_cleaned["happy_reduced"] = data_cleaned["happy"].replace(reduce_class_map)
+    return data_cleaned.reset_index(drop=True).drop("happy", axis=1)
