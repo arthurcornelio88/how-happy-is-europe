@@ -1,4 +1,4 @@
-import os
+import json
 import numpy as np
 import pandas as pd
 
@@ -46,3 +46,6 @@ X_PRED = pd.DataFrame([np.array(["FR",1,1,1,1,1,6,1,1,1,1])], columns=['cntry', 
 'ctzcntr', 'brncntr', 'happy'])
 
 GAR_IMAGE="how-happy-in-europe"
+
+with open("features_table.json", 'r') as file:
+    FEATURE_TABLE = json.load(file)
