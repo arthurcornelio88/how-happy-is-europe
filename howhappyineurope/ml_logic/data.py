@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import json
 from typing import Dict
-from params import FEATURES_DICT
+from howhappyineurope.params import FEATURES_DICT
 
 def load_data():
     # Maybe, in the future, getting data from a filtering in bigquery, or
@@ -116,7 +116,7 @@ def create_map(arr: np.ndarray) -> Dict:
     return dict_map
 
 def reduce_happiness_categories(FEATURES_DICT, data):
-    aux_data = data_cleaned[features_dict.keys()].copy()
+    aux_data = data[FEATURES_DICT.keys()].copy()
     reduce_class_map = {
     0: 0, 1: 0, 2: 0, 3: 0,
     4: 1, 5: 1, 6: 1, 7: 1,

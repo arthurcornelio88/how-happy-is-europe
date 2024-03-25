@@ -4,30 +4,20 @@ import pandas as pd
 from sklearn.preprocessing import OrdinalEncoder, StandardScaler, FunctionTransformer, OneHotEncoder
 from sklearn.compose import ColumnTransformer, make_column_transformer
 from sklearn.pipeline import Pipeline
+import json
 from imblearn.over_sampling import SMOTENC
 with open("features_table.json", 'r') as file:
     features_tables = json.load(file)
 from data import *
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import train_test_split
-
-
-# from main_local
-
-# def num_replacer(df): #, col):
-#     for col in df.columns:
-#         df_transformed = df.copy()
-#         #df_transformed[f'{col}_refusal'] = df_transformed[col].apply(lambda x: 1 if x == 77 else -1)
-#         df_transformed[f'{col}_dontknow'] = df_transformed[col].apply(lambda x: 1 if x == 88 else -1)
-#         df_transformed[f'{col}_noanswer'] = df_transformed[col].apply(lambda x: 1 if x == 99 else -1)
-#         # Replace values 77, 88, 99 with -1
-#         df_transformed[col] = df_transformed[col].replace([77, 88, 99], -1)
-#     return df_transformed
+from howhappyineurope.ml_logic.data import *
 
 def smote_sampling(cleaned_data:pd.DataFrame)-> pd.DataFrame:
     categorical_features_indices = [cleaned_data.columns.get_loc("cntry")]
+    print(categorical_features_indices)
     smote_nc = SMOTENC(categorical_features=categorical_features_indices, random_state=42)
-    y_reduced = cleaned_data['happy_reduced']
+    print(smote_nc)
     cols = [col for col in cleaned_data.columns if "_desc" not in col and "happy" not in col]
     X_res, y_res = smote_nc.fit_resample(cleaned_data[cols], cleaned_data["happy_reduced"])
     cleaned_data = pd.concat([X_res, y_res], axis=1)
@@ -75,31 +65,22 @@ def scaling(cleaned_data):
     cntry_cols = [col for col in cleaned_data.columns if "cntry" in col]
     cleaned_data[continuous_cols] = minmax_X.fit_transform(cleaned_data[continuous_cols])
     cleaned_data["happy_reduced"] = minmax_Y.fit_transform(cleaned_data["happy_reduced"].values[:, np.newaxis])
-    return cleaned_data, continuous_cols, cntry_cols
+    scaled_cleaned_data = cleaned_data.copy()
+
+    return scaled_cleaned_data, continuous_cols, cntry_cols
 
 def split(cleaned_data, continuous_cols, cntry_cols):
     X = cleaned_data[continuous_cols + cntry_cols]
     y = cleaned_data["happy_reduced"].values[:, np.newaxis]
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-    reutrn X_train, X_test, y_train, y_test
-
-def pipe_preprocess(cleaned_data:pd.DataFrame)-> np.array:
-    smote_sampling(cleaned_data)
-    rescaling(cleaned_data, features_tables, json_to_df, enrich_df, remove_star_vals, create_map)
-    encoding_categorical_features(cleaned_data)
-    scaling(cleaned_data)
-    split(cleaned_data, continuous_cols, cntry_cols)
-    # Defining transformers (numerical and categorical)
-    #num_replacer_transformer = FunctionTransformer(num_replacer)
-    # cat_transformer = OneHotEncoder(handle_unknown='ignore',drop='first', sparse_output=False)
-    # # Pipeline for processing data (preproc)
-    # preproc = make_column_transformer(
-    #     (cat_transformer, ['cntry','ctzcntr','brncntr','gndr', 'dscrgrp'])
-    #     remainder='passthrough')
-    # creating dataset processed (X_preproc)
-
-    #X_preproc = preproc.fit_transform(clean_data)
     return X_train, X_test, y_train, y_test
 
+def pipe_preprocess(cleaned_data:pd.DataFrame)-> np.array:
+    smote_df = smote_sampling(cleaned_data)
+    print(smote_df)
+    # cleaned_data_res = rescaling(smote_df, features_tables)
+    # encoded_data = encoding_categorical_features(cleaned_data_res)
+    # scaled_cleaned_data, continuous_cols, cntry_cols = scaling(encoded_data)
     print("✅ preprocess() done")
-    #return preproc, X_preproc
+
+    return scaled_cleaned_data
