@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import json
 from typing import Dict
+from params import FEATURES_DICT
 
 def load_data():
     # Maybe, in the future, getting data from a filtering in bigquery, or
@@ -9,16 +10,15 @@ def load_data():
     # TODO DONE
     #load the pre-filtered dataset
     data = pd.read_csv(
-        "../data/20240319_ESS10_manually-filtered_arthurcornelio88.csv"
+        "20240319_ESS10_manually-filtered_arthurcornelio88.csv"
     ).reset_index(drop=True)
     #load the dictionary with the best features
-    with open("../data/features_table.json", 'r') as file:
+    with open("features_table.json", 'r') as file:
         features_tables = json.load(file)
 
     return data, features_tables
 
 def data_cleaning(data):
-    # TODO: DONE
     # clean undesired rows and the target "happy"
     data_cleaned = data.drop("Unnamed: 0", axis=1)
     data_cleaned = data[~data["happy"].isin([77, 88, 99])]
@@ -114,3 +114,14 @@ def create_map(arr: np.ndarray) -> Dict:
     for ind, el in enumerate(arr):
         dict_map[el] = aux_vals[ind]
     return dict_map
+
+def reduce_happiness_categories(FEATURES_DICT, data):
+    aux_data = data_cleaned[features_dict.keys()].copy()
+    reduce_class_map = {
+    0: 0, 1: 0, 2: 0, 3: 0,
+    4: 1, 5: 1, 6: 1, 7: 1,
+    8: 2, 9: 2, 10: 2}
+    aux_data["happy_reduced"] = aux_data["happy"].replace(reduce_class_map)
+    aux_data = aux_data.reset_index(drop=True)
+    data_cleaned = aux_data.copy()
+    return data_cleaned
