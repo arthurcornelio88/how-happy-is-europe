@@ -41,11 +41,29 @@ FEATURES_DICT = {
     "happy":    "Happiness"
 }
 
-X_PRED = pd.DataFrame([np.array(["FR",1,1,1,1,1,6,1,1,1,1])], columns=['cntry', \
-'gndr', 'sclmeet', 'inprdsc', 'sclact', 'health', 'rlgdgr','dscrgrp',     \
-'ctzcntr', 'brncntr', 'happy'])
+CONT_COLS = ["stfmjob","trdawrk","jbprtfp", "pfmfdjba", "dcsfwrka", "wrkhome", \
+        "wrklong", "wrkresp", "health","stfeco","hhmmb","hincfel", "trstplc", \
+        "sclmeet", "hlthhmp", "sclact","iphlppl", "ipsuces", "ipstrgv", "gndr"]
+CATEG_COLS = ["cntry"]
+
+X_PRED = pd.DataFrame(
+    data=[
+        np.array(
+            [1,1,1,1,1,
+            1,1,1,1,1,
+            1,1,1,1,1,
+            1,1,1,1,1,
+            "BE"]
+        )
+    ],
+    columns=CONT_COLS + CATEG_COLS)
+
+for column in X_PRED.columns:
+    if column != 'cntry':
+        X_PRED[column] = X_PRED[column].astype(int)
 
 GAR_IMAGE="how-happy-in-europe"
+ROOT_DIR = "howhappyineurope"
 
-with open("features_table.json", 'r') as file:
-    FEATURE_TABLE = json.load(file)
+with open(f"{ROOT_DIR}/data/features_table.json", 'r') as file:
+    FEATURES_TABLE = json.load(file)
