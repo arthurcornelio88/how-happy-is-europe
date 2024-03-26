@@ -5,21 +5,10 @@ from typing import Dict
 from howhappyineurope.params import FEATURES_DICT
 
 def load_data():
-    # Maybe, in the future, getting data from a filtering in bigquery, or
-    #the POST to get 1000 specific rows, etc.
-    # TODO DONE
-    #load the pre-filtered dataset
     data = pd.read_csv(
         "20240319_ESS10_manually-filtered_arthurcornelio88.csv"
     ).reset_index(drop=True)
-    #load the dictionary with the best features
-    return data
-
-def data_cleaning(data):
-    # clean undesired rows and the target "happy"
-    data_cleaned = data.drop("Unnamed: 0", axis=1)
-    data_cleaned = data_cleaned[~data_cleaned["happy"].isin([77, 88, 99])]
-    return data_cleaned
+    return data[~data["happy"].isin([77, 88, 99])]
 
 def json_to_df(features_json: Dict, feature: str) -> pd.DataFrame:
     """
@@ -111,11 +100,11 @@ def create_map(arr: np.ndarray) -> Dict:
         dict_map[el] = aux_vals[ind]
     return dict_map
 
-def reduce_happiness_categories(FEATURES_DICT, data):
-    data_cleaned = data[FEATURES_DICT.keys()].copy()
+def reduce_happiness_categories(df: pd.DataFrame):
+    df = df[FEATURES_DICT.keys()].copy()
     reduce_class_map = {
         0: 0, 1: 0, 2: 0, 3: 0,
         4: 1, 5: 1, 6: 1, 7: 1,
         8: 2, 9: 2, 10: 2}
-    data_cleaned["happy_reduced"] = data_cleaned["happy"].replace(reduce_class_map)
-    return data_cleaned.reset_index(drop=True).drop("happy", axis=1)
+    df["happy_reduced"] = df["happy"].replace(reduce_class_map)
+    return df.reset_index(drop=True).drop("happy", axis=1)
