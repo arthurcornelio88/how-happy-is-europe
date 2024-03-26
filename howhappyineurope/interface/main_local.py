@@ -1,7 +1,7 @@
 #main local package file
 
 from howhappyineurope.ml_logic.registry import *
-from howhappyineurope.ml_logic.model import *
+from howhappyineurope.ml_logic.old_model import *
 from howhappyineurope.params import *
 
 #libraries

@@ -1,4 +1,4 @@
-import os
+import json
 import numpy as np
 import pandas as pd
 
@@ -15,7 +15,6 @@ STATE_OF_HAPPINESS = [
     "Extremely happy",
     "Extremely happy"
 ]
-
 FEATURES_DICT = {
     "stfmjob":  "How satisfied are you in your main job",
     "trdawrk":  "Too tired after work to enjoy things like doing at home, how often",
@@ -41,8 +40,10 @@ FEATURES_DICT = {
     "happy":    "Happiness"
 }
 
-X_PRED = pd.DataFrame([np.array(["FR",1,1,1,1,1,6,1,1,1,1])], columns=['cntry', \
-'gndr', 'sclmeet', 'inprdsc', 'sclact', 'health', 'rlgdgr','dscrgrp',     \
-'ctzcntr', 'brncntr', 'happy'])
+X_PRED = pd.DataFrame([np.array([1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,"DE"])], \
+    columns=FEATURES_DICT.pop('happy',None).keys())
 
 GAR_IMAGE="how-happy-in-europe"
+
+with open("features_table.json", 'r') as file:
+    FEATURE_TABLE = json.load(file)
