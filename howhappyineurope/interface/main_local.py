@@ -21,25 +21,6 @@ X_PRED = pd.DataFrame([np.array(["FR",1,1,1,1,1,6,1,1,1,1])], columns=['cntry', 
     'gndr', 'sclmeet', 'inprdsc', 'sclact', 'health', 'rlgdgr','dscrgrp',     \
     'ctzcntr', 'brncntr', 'happy'])
 
-# on params.py too
-# STATE_OF_HAPPINESS = [
-#     "Extremely unhappy",
-#     "Extremely unhappy",
-#     "Extremely unhappy",
-#     "Extremely unhappy",
-#     "Neutral",
-#     "Neutral",
-#     "Neutral",
-#     "Neutral",
-#     "Extremely happy",
-#     "Extremely happy",
-#     "Extremely happy"
-# ]
-
-# TODO:
-# def getting_best_features():
-#     return df_best_features
-
 def data_cleaning(df):
 
     # remove the first column
