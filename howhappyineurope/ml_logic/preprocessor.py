@@ -1,17 +1,17 @@
 #libraries
-import json
 import numpy as np
 import pandas as pd
+import joblib as jb
 
 from imblearn.over_sampling import SMOTENC
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.preprocessing import  OneHotEncoder
 from sklearn.model_selection import train_test_split
 
+from howhappyineurope.params import FEATURES_TABLE
 from howhappyineurope.ml_logic.data import *
 
-with open("features_table.json", 'r') as file:
-    FEATURES_TABLE = json.load(file)
+
 
 def smote_sampling(df:pd.DataFrame)-> pd.DataFrame:
     """
@@ -66,6 +66,7 @@ def rescaling(df):
 def encoding_categorical_features(df):
     encoder = OneHotEncoder(sparse_output=False)
     cntry_encoded = encoder.fit_transform(df[['cntry']])
+    jb.dump(encoder, f"{ROOT_DIR}/ml_logic/ml_obj/one_hot_encoder.joblib")
     encoded_columns = [f"cntry_{category}" for category in encoder.categories_[0]]
     cntry_encoded_df = pd.DataFrame(cntry_encoded, columns=encoded_columns)
     return pd.concat([df.drop("cntry", axis=1), cntry_encoded_df], axis=1)
@@ -76,6 +77,8 @@ def scaling(df: pd.DataFrame):
     continuous_cols = [col for col in df.columns if "_desc" not in col and "happy" not in col and "cntry" not in col]
     df[continuous_cols] = minmax_X.fit_transform(df[continuous_cols])
     df["happy_reduced"] = minmax_Y.fit_transform(df["happy_reduced"].values[:, np.newaxis])
+    jb.dump(minmax_X, f"{ROOT_DIR}/ml_logic/ml_obj/minmax_scalar_x.joblib")
+    jb.dump(minmax_Y, f"{ROOT_DIR}/ml_logic/ml_obj/minmax_scalar_y.joblib")
     return df
 
 def split(df):
@@ -86,7 +89,9 @@ def split(df):
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
     return X_train, X_test, y_train, y_test
 
-def pipe_preprocess(df:pd.DataFrame)-> np.array:
+def pipe_preprocess() -> pd.DataFrame:
+    df = load_data()
+    df = reduce_happiness_categories(df)
     df = rescaling(df)
     df = smote_sampling(df)
     df = encoding_categorical_features(df)
