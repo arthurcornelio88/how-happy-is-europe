@@ -1,101 +1,51 @@
-#main package file
+#libraries
+import joblib as jb
+import argparse
 
+#main package file
 from howhappyineurope.ml_logic.registry import *
 from howhappyineurope.ml_logic.model import *
 from howhappyineurope.ml_logic.data import *
 from howhappyineurope.ml_logic.preprocessor import *
 from howhappyineurope.params import *
 
-#libraries
-import numpy as np
-import pandas as pd
-import pickle
-from sklearn import datasets
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import OrdinalEncoder, StandardScaler, FunctionTransformer, OneHotEncoder
-from sklearn.compose import ColumnTransformer, make_column_transformer
-from sklearn.pipeline import Pipeline
+def parse_args():
+    parser = argparse.ArgumentParser(description="Your script description.")
+    parser.add_argument("-t", "--train", action="store_true", help="The filename to process.")
+    return parser.parse_args()
 
-# Row for prediction, already on params.py
-X_PRED = pd.DataFrame([np.array(["FR",1,1,1,1,1,6,1,1,1,1])], columns=['cntry', \
-    'gndr', 'sclmeet', 'inprdsc', 'sclact', 'health', 'rlgdgr','dscrgrp',     \
-    'ctzcntr', 'brncntr', 'happy'])
+def train(df) -> None:
 
-def train(X_train, y_train):
-
-    # TODO: now
-    # Train model using `model.py`
-    model = load_model()
-
-    if model is None:
-        model = initialize_model()
-
+    X_train, X_test, y_train, y_test = split(df)
+    model = initialize_model()
     model = train_model(model, X_train, y_train)
 
+    jb.dump(model, f"{ROOT_DIR}/ml_logic/ml_obj/model.joblib")
     print("✅ train() done")
-    return model
 
-# TODO: when working on enhanced model
-def evaluate(model, X_test, y_test):
+def data_preprocessing() -> pd.DataFrame:
+    return pipe_preprocess()
 
-    metrics_dict = evaluate_model(model, X_test, y_test)
-    mae = metrics_dict["mae"]
+def main(args):
+    if args.train:
+        print("############## \U0001F3C3  Training \U0001F3C3 ##############")
+        df = data_preprocessing()
+        train(df)
+    pred()
 
-    params = dict(
-        context="evaluate", # Package behavior
-        training_set_size=DATA_SIZE,
-        row_count=len(X_new)
-    )
-
-    save_results(params=params, metrics=metrics_dict)
-
-    print("✅ evaluate() done \n")
-
-    return mae
-
-def pred(X_pred=X_PRED):
-    #import ipdb; ipdb.set_trace()
-    df = load_data()
-    df = data_cleaning(df)
-    df = reduce_happiness_categories(FEATURES_DICT, df)
-
-    df_preproc = pipe_preprocess(df)
-    X_train, _, _, _ = split(df_preproc)
-
-    # Training model
-    # This is not supposed to be here
-    model = train(X_train)
-
-    # TODO : choose method of saving
-
-    with open("/home/arthurcornelio/code/arthurcornelio88/how-happy-in-europe/models/model.pkl", "wb") as file:
-         pickle.dump(model, file)
-    # CHOOSED: Save model weight on the hard drive (and optionally on GCS too!)
-    save_model(model=model)
-
-    # Processing the row data
-    x_pred_preproc = scaling(X_pred)
-
-    # Making the prediction
-    y_pred = model.predict(x_pred_preproc[:, :-1])[0]
-
-
-    # Post process
+def pred(df=X_PRED) -> None:
+    model = jb.load(f"{ROOT_DIR}/ml_logic/ml_obj/model.joblib")
+    minmax_x = jb.load(f"{ROOT_DIR}/ml_logic/ml_obj/minmax_scalar_x.joblib")
+    minmax_y = jb.load(f"{ROOT_DIR}/ml_logic/ml_obj/minmax_scalar_y.joblib")
+    onehotencoder = jb.load(f"{ROOT_DIR}/ml_logic/ml_obj/one_hot_encoder.joblib")
+    x_transformed = minmax_x.transform(df[CONT_COLS])
+    cntry_transformed = onehotencoder.transform(df[CATEG_COLS])
+    x_transformed = np.concatenate([x_transformed, cntry_transformed], axis=1)
+    y_pred = model.predict(x_transformed)[:, np.newaxis]
+    y_pred = np.round(minmax_y.inverse_transform(y_pred))
     print(y_pred)
-    # TODO
-    # evaluate
-    # evaluate(model, x_test, y_test)
-
-    # TODO: when we have the enhanced model
-    # Save results on the hard drive using taxifare.ml_logic.registry
-    #save_results(params=params, metrics=dict(mae=val_mae))
-
-    # Rounding the predictions to the nearest integer and constraining them to the range [0, 10]
-    y_pred_constrained = int(np.clip(np.round(y_pred), 0, 10))
-
-    print(y_pred_constrained)
-    print(f"You are {STATE_OF_HAPPINESS[y_pred_constrained]}." )
-    #return y_pred_constrained
+    return y_pred
 
 if __name__ == '__main__':
-    pred(X_PRED)
+    args = parse_args()
+    main(args)
