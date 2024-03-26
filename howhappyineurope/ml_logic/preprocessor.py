@@ -28,7 +28,9 @@ def smote_sampling(df:pd.DataFrame)-> pd.DataFrame:
     pd.DataFrame
         balanced dataframe for each category of "happy_reduced"
     """
+    import ipdb; ipdb.set_trace()
     # get the index of the categorical column to be passed to SMOTENC
+    #df = df[0:5000]
     categorical_features_indices = [df.columns.get_loc("cntry")]
     smote_nc = SMOTENC(categorical_features=categorical_features_indices, random_state=42)
 
@@ -40,6 +42,7 @@ def smote_sampling(df:pd.DataFrame)-> pd.DataFrame:
     return pd.concat([X_res, y_res], axis=1)
 
 def rescaling(df):
+    #import ipdb; ipdb.set_trace()
     for feature in df.columns:
         if feature in ['cntry', "happy_reduced"]:
             continue
@@ -62,19 +65,30 @@ def rescaling(df):
             df.loc[df.index.isin(indices), feature] = -1
     return df.reset_index(drop=True)
 
-def encoding_categorical_features(df):
-    encoder = OneHotEncoder(sparse_output=False)
-    cntry_encoded = encoder.fit_transform(df[['cntry']])
+def encoding_categorical_features(df, predicting=False):
+    if predicting==True:
+        encoder = pickle.read(file,etc.)
+        cntry_encoded = encoder.transform(df)
+    else:
+        encoder = OneHotEncoder(sparse_output=False, handle_unknown="ignore")
+        cntry_encoded = encoder.fit_transform(df[['cntry']])
+
     encoded_columns = [f"cntry_{category}" for category in encoder.categories_[0]]
     cntry_encoded_df = pd.DataFrame(cntry_encoded, columns=encoded_columns)
     return pd.concat([df.drop("cntry", axis=1), cntry_encoded_df], axis=1)
 
 def scaling(df: pd.DataFrame):
+    desc_columns = [col for col in df.columns if col.endswith('_desc')]
+    if all(col in df.columns for col in desc_columns):
+        df = df.drop(columns=desc_columns)
+
     minmax_X = MinMaxScaler()
     minmax_Y = MinMaxScaler()
     continuous_cols = [col for col in df.columns if "_desc" not in col and "happy" not in col and "cntry" not in col]
     df[continuous_cols] = minmax_X.fit_transform(df[continuous_cols])
-    df["happy_reduced"] = minmax_Y.fit_transform(df["happy_reduced"].values[:, np.newaxis])
+
+    if "happy_reduced" in df.columns:
+        df["happy_reduced"] = minmax_Y.fit_transform(df["happy_reduced"].values[:, np.newaxis])
     return df
 
 def split(df):

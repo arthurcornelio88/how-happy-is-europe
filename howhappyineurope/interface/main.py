@@ -16,75 +16,95 @@ from sklearn.preprocessing import OrdinalEncoder, StandardScaler, FunctionTransf
 from sklearn.compose import ColumnTransformer, make_column_transformer
 from sklearn.pipeline import Pipeline
 
-# Row for prediction, already on params.py
-X_PRED = pd.DataFrame([np.array(["FR",1,1,1,1,1,6,1,1,1,1])], columns=['cntry', \
-    'gndr', 'sclmeet', 'inprdsc', 'sclact', 'health', 'rlgdgr','dscrgrp',     \
-    'ctzcntr', 'brncntr', 'happy'])
+#def train(): # TODO
 
-def train(X_train, y_train):
+#     # TODO:
+#     df = load_data()
+#     df = data_cleaning(df)
+#     df = reduce_happiness_categories(FEATURES_DICT, df)
 
-    # TODO: now
-    # Train model using `model.py`
-    model = load_model()
+#     df_preproc = pipe_preprocess(df)
+#     X_train, X_test, y_train, y_test = split(df_preproc)
 
-    if model is None:
-        model = initialize_model()
+#     model = train_model(X_train, y_train)
 
-    model = train_model(model, X_train, y_train)
+#     # evaluate
+#     evaluate_model(model, X_test, y_test)
+#     # TODO: now
+#     # Train model using `model.py`
+#     model = load_model()
 
-    print("✅ train() done")
-    return model
+#     if model is None:
+#         model = initialize_model()
 
-# TODO: when working on enhanced model
-def evaluate(model, X_test, y_test):
+#     model = train_model(model, X_train, y_train)
 
-    metrics_dict = evaluate_model(model, X_test, y_test)
-    mae = metrics_dict["mae"]
+#     save_model(model)
 
-    params = dict(
-        context="evaluate", # Package behavior
-        training_set_size=DATA_SIZE,
-        row_count=len(X_new)
-    )
+#     print("✅ train() done")
+#     return model
 
-    save_results(params=params, metrics=metrics_dict)
+def fun1(): #put or not in the pipeline?
+    data = data.drop("Unnamed: 0", axis=1)
+    data = data[~data["happy"].isin([77, 88, 99])]
 
-    print("✅ evaluate() done \n")
+# def pipe_preprocess(clean_data:pd.DataFrame)-> np.array:
 
-    return mae
+#     #? fun1,
+
+#     (num_replacer_transformer, ['sclmeet','inprdsc','health', 'rlgdgr']),
+#     (cat_transformer, ['cntry','ctzcntr','brncntr','gndr', 'dscrgrp']),
+
+#     # Defining transformers (numerical and categorical)
+#     num_replacer_transformer = FunctionTransformer(num_replacer)
+#     cat_transformer = OneHotEncoder(handle_unknown='ignore',drop='first', sparse_output=False)
+#     # Pipeline for processing data (preproc)
+#     preproc = make_column_transformer(
+#         (num_replacer_transformer, ['sclmeet','inprdsc','health', 'rlgdgr']),
+#         (cat_transformer, ['cntry','ctzcntr','brncntr','gndr', 'dscrgrp']),
+#         remainder='passthrough')
+#     # creating dataset processed (X_preproc)
+#     X_preproc = preproc.fit_transform(clean_data)
+
+#     print("✅ preprocess() done")
+#     return preproc, X_preproc
 
 def pred(X_pred=X_PRED):
-    #import ipdb; ipdb.set_trace()
-    df = load_data()
-    df = data_cleaning(df)
-    df = reduce_happiness_categories(FEATURES_DICT, df)
 
-    df_preproc = pipe_preprocess(df)
-    X_train, _, _, _ = split(df_preproc)
+    # Processing the row to predict data
+    X_pred_main = X_pred
 
-    # Training model
-    # This is not supposed to be here
-    model = train(X_train)
+    print(X_pred)
 
-    # TODO : choose method of saving
+    for column in X_pred.columns:
+        if column != 'cntry':
+            X_pred[column] = X_pred[column].astype(int)
 
-    with open("/home/arthurcornelio/code/arthurcornelio88/how-happy-in-europe/models/model.pkl", "wb") as file:
-         pickle.dump(model, file)
-    # CHOOSED: Save model weight on the hard drive (and optionally on GCS too!)
-    save_model(model=model)
+    # aux_data = X_pred[FEATURES_DICT.keys()].copy()
 
-    # Processing the row data
-    x_pred_preproc = scaling(X_pred)
+    # reduce_class_map = {
+    #     0: 0, 1: 0, 2: 0, 3: 0,
+    #     4: 1, 5: 1, 6: 1, 7: 1,
+    #     8: 2, 9: 2, 10: 2
+    # }
 
+    # aux_data["happy_reduced"] = aux_data["happy"].replace(reduce_class_map)
+    # aux_data = aux_data.reset_index(drop=True)
+    X_original = load_data()
+    X_pred_main = rescaling(X_pred)
+    print(X_pred_main)
+    X_pred_main, encoder = encoding_categorical_features(X_pred_main,predicting=False)
+    print(X_pred_main)
+    print(X_pred_main.columns)
+    X_pred_main = scaling(X_pred_main)
+    print(X_pred_main.columns)
+    print(X_pred_main)
+    model = load_model()
     # Making the prediction
-    y_pred = model.predict(x_pred_preproc[:, :-1])[0]
-
+    y_pred = model.predict(X_pred_main)
 
     # Post process
     print(y_pred)
-    # TODO
-    # evaluate
-    # evaluate(model, x_test, y_test)
 
     # TODO: when we have the enhanced model
     # Save results on the hard drive using taxifare.ml_logic.registry

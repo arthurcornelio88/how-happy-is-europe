@@ -2,6 +2,7 @@
 import numpy as np
 import pandas as pd
 import xgboost as xgb
+import pickle
 from sklearn.metrics import mean_absolute_error, accuracy_score
 from sklearn.linear_model import LinearRegression
 from colorama import Fore, Style
@@ -39,36 +40,46 @@ def train_model(
 
     return model
 
-def evaluate_model(
-        model,
-        X_test: np.ndarray,
-        y_test: np.ndarray,
-    ):
+def evaluate_model(model, X_test: np.ndarray, y_test: np.ndarray, minmax_Y):
     """
-    Evaluate trained model performance on the dataset
+    Evaluate trained model performance on the dataset.
+
+    :param model: Trained model to evaluate.
+    :param X_test: Test features.
+    :param y_test: True labels for test data.
+    :param minmax_Y: Scaler object used for inverse transformation.
     """
-
-    print(Fore.BLUE + f"\nEvaluating model on {len(X_test)} rows..." + Style.RESET_ALL)
-
     if model is None:
-        print(f"\n❌ No model to evaluate")
+        print("\n❌ No model to evaluate")
         return None
 
-    # accuracy for 3 classes of happiness
-    accuracy_score(res_int_df["test_reduced"], res_int_df["pred_reduced"]) * 100
+    print(f"\nEvaluating model on {len(X_test)} rows...")
 
-    # metrics = model.evaluate(
-    #     x=X,
-    #     y=y,
-    #     batch_size=batch_size,
-    #     verbose=0,
-    #     # callbacks=None,
-    #     return_dict=True
-    # )
+    # Predict the labels of the test set
+    y_pred = model.predict(X_test)
 
-    # loss = metrics["loss"]
-    # mae = metrics["mae"]
+    # Calculate the Mean Absolute Error (MAE) of the predictions
+    mae = mean_absolute_error(y_test, y_pred)
+    print(f"MAE: {mae}")
 
-    print(f"✅ Model evaluated, MAE: {round(mae, 2)}")
+    # Assuming y_pred and y_test need to be inversely transformed for accuracy calculation
+    yy_pred = np.round(minmax_Y.inverse_transform(y_pred[:, np.newaxis]))
+    yy_test = minmax_Y.inverse_transform(y_test[:, np.newaxis])  # Ensure y_test is correctly shaped
 
-    return metrics
+    # Calculate the accuracy of the predictions (for categorized outputs)
+    accuracy = accuracy_score(yy_test, yy_pred) * 100
+    print(f"Accuracy: {accuracy}%")
+
+    # Return both metrics for further use
+    return {"mae": mae, "accuracy": accuracy}
+
+def save_model(model):
+    #Save model locally
+    with open("model.pkl", "wb") as file:
+        pickle.dump(model, file)
+
+def load_model():
+    # Load Pipeline from pickle file
+    model = pickle.load(open("models/bh_model.pkl","rb"))
+
+    return model

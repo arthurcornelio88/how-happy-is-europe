@@ -40,8 +40,16 @@ FEATURES_DICT = {
     "happy":    "Happiness"
 }
 
-X_PRED = pd.DataFrame([np.array([1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,"DE"])], \
-    columns=FEATURES_DICT.pop('happy',None).keys())
+X_PRED = pd.DataFrame([np.array([1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,"FR"])], \
+    #X_PRED = pd.DataFrame([np.array([1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1])], \
+    columns=["stfmjob","trdawrk","jbprtfp", "pfmfdjba", "dcsfwrka", "wrkhome", \
+        "wrklong", "wrkresp", "health","stfeco","hhmmb","hincfel", "trstplc", \
+        "sclmeet", "hlthhmp", "sclact","iphlppl", "ipsuces", "ipstrgv", "gndr", "cntry"])\
+
+    #    "cntry_GB", "cntry_CZ", "cntry_SI", "cntry_FI", "cntry_BG", "cntry_PT", \
+    #        "cntry_NL", "cntry_LT", "cntry_IE", "cntry_HU", "cntry_BE", "cntry_ME", \
+    #            "cntry_NO", "cntry_CH", "cntry_GR", "cntry_SK", "cntry_HR", \
+    #                "cntry_IS", "cntry_MK", "cntry_EE", "cntry_IT"])
 
 GAR_IMAGE="how-happy-in-europe"
 
