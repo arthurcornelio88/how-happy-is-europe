@@ -2,11 +2,11 @@ import numpy as np
 import pandas as pd
 import json
 from typing import Dict
-from howhappyineurope.params import FEATURES_DICT
+from howhappyineurope.params import FEATURES_DICT, ROOT_DIR
 
 def load_data():
     data = pd.read_csv(
-        "20240319_ESS10_manually-filtered_arthurcornelio88.csv"
+        f"{ROOT_DIR}/data/20240319_ESS10_manually-filtered_arthurcornelio88.csv"
     ).reset_index(drop=True)
     return data[~data["happy"].isin([77, 88, 99])]
 
