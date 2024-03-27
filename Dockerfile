@@ -4,10 +4,10 @@ COPY requirements_prod.txt requirements.txt
 RUN pip install -r requirements.txt
 
 COPY howhappyineurope howhappyineurope
-COPY models models
-COPY pipelines pipelines
+COPY data data
 COPY setup.py setup.py
 COPY Makefile Makefile
+COPY README.md README.md
 
 RUN pip install .
 

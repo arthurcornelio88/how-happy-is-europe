@@ -2,18 +2,24 @@ import json
 import numpy as np
 import pandas as pd
 
+GAR_IMAGE="how-happy-in-europe"
+ROOT_DIR = "howhappyineurope"
+
+#1 to 4 : unhappy
+#5 to 7 : neutral
+#8 to 10 : happy
 STATE_OF_HAPPINESS = [
-    "Extremely unhappy",
-    "Extremely unhappy",
-    "Extremely unhappy",
-    "Extremely unhappy",
-    "Neutral",
-    "Neutral",
-    "Neutral",
-    "Neutral",
-    "Extremely happy",
-    "Extremely happy",
-    "Extremely happy"
+    "unhappy...",
+    "unhappy...",
+    "unhappy...",
+    "unhappy...",
+    "neutral.",
+    "neutral.",
+    "neutral.",
+    "neutral.",
+    "happy!",
+    "happy!",
+    "happy!"
 ]
 
 FEATURES_DICT = {
@@ -41,6 +47,7 @@ FEATURES_DICT = {
     "happy":    "Happiness"
 }
 
+
 CONT_COLS = ["stfmjob","trdawrk","jbprtfp", "pfmfdjba", "dcsfwrka", "wrkhome", \
         "wrklong", "wrkresp", "health","stfeco","hhmmb","hincfel", "trstplc", \
         "sclmeet", "hlthhmp", "sclact","iphlppl", "ipsuces", "ipstrgv", "gndr"]
@@ -61,9 +68,6 @@ X_PRED = pd.DataFrame(
 for column in X_PRED.columns:
     if column != 'cntry':
         X_PRED[column] = X_PRED[column].astype(int)
-
-GAR_IMAGE="how-happy-in-europe"
-ROOT_DIR = "howhappyineurope"
 
 with open("data/features_table.json", 'r') as file:
     FEATURES_TABLE = json.load(file)
