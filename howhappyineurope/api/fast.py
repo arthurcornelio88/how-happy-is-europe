@@ -2,13 +2,14 @@ import numpy as np
 import pandas as pd
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from howhappyineurope.ml_logic.registry import load_model
-from howhappyineurope.ml_logic.preprocessor import pipe_preprocess
-from howhappyineurope.params import STATE_OF_HAPPINESS
-import pickle
+from howhappyineurope.params import STATE_OF_HAPPINESS, ROOT_DIR, CONT_COLS, CATEG_COLS
+import joblib as jb
 
 app = FastAPI()
-app.state.model = load_model()
+app.state.model = jb.load(f"{ROOT_DIR}/ml_logic/ml_obj/model.joblib")
+app.state.minmax_x = jb.load(f"{ROOT_DIR}/ml_logic/ml_obj/minmax_scalar_x.joblib")
+app.state.minmax_y = jb.load(f"{ROOT_DIR}/ml_logic/ml_obj/minmax_scalar_y.joblib")
+app.state.onehotencoder = jb.load(f"{ROOT_DIR}/ml_logic/ml_obj/one_hot_encoder.joblib")
 
 # Allowing all middleware is optional, but good practice for dev purposes
 app.add_middleware(
@@ -19,67 +20,48 @@ app.add_middleware(
     allow_headers=["*"],  # Allows all headers
 )
 
-# http://127.0.0.1:8000/predict?pickup_datetime=2012-10-06 12:10:20&pickup_longitude=40.7614327&pickup_latitude=-73.9798156&dropoff_longitude=40.6513111&dropoff_latitude=-73.8803331&passenger_count=2
+# http://127.0.0.1:8000/predict
 @app.get("/predict")
 def predict(
-        cntry: str, # FR
-        gndr: int, # 4
-        sclmeet: int, # 3
-        inprdsc: int, # 2
-        sclact: int, # 5
-        health: int, # 7
-        rlgdgr: int, # 6
-        dscrgrp: int, # 2
-        ctzcntr: int, # 4
-        brncntr: int, #
-        happy: int
+    cntry: str,
+    gndr: int, stfmjob: int, dcsfwrka: int, wrkhome: int, wrklong: int,
+    wrkresp: int, sclmeet: int, sclact: int, trdawrk: int, jbprtfp: int,
+    pfmfdjba: int, health: int, hlthhmp: int, hhmmb: int, hincfel: int,
+    stfeco: int, ipsuces: int, iphlppl: int, ipstrgv: int, trstplc: int
     ):
     """
     list input from user to predict their happiness. list of features needed for prediction.
     """
 
-    X_pred = pd.DataFrame(dict(
-        cntry=cntry, # FR
-        gndr=gndr, # 4
-        sclmeet=sclmeet, # 3
-        inprdsc=inprdsc, # 2
-        sclact=sclact, # 5
-        health=health, # 7
-        rlgdgr=rlgdgr, # 6
-        dscrgrp=dscrgrp, # 2
-        ctzcntr=ctzcntr, # 4
-        brncntr=brncntr, #
-        happy=happy), index=[0])
+    # !!! Order in website is different from the code dataset
+    # "cntry","stfmjob","trdawrk","jbprtfp", "pfmfdjba", "dcsfwrka", "wrkhome",
+    # "wrklong", "wrkresp", "health","stfeco","hhmmb","hincfel", "trstplc",
+    # "sclmeet", "hlthhmp", "sclact","iphlppl", "ipsuces", "ipstrgv", "gndr"
 
+    df = pd.DataFrame(dict(
+        cntry=cntry,
+        stfmjob=stfmjob,trdawrk=trdawrk,jbprtfp=jbprtfp,pfmfdjba=pfmfdjba,
+        dcsfwrka=dcsfwrka,wrkhome=wrkhome,wrklong=wrklong,wrkresp=wrkresp,
+        health=health,stfeco=stfeco,hhmmb=hhmmb,hincfel=hincfel,trstplc=trstplc,
+        sclmeet=sclmeet,hlthhmp=hlthhmp,sclact=sclact,iphlppl=iphlppl,
+        ipsuces=ipsuces,ipstrgv=ipstrgv,gndr=gndr
+    ), index=[0])
 
-    # load the model - store it in 'model' folder. api will access folder and load it from there. put this file inside docker image
-    # TODO ARTHUR : function in registry.py? that loads the pickle in model.py? because model is already trained !
     model = app.state.model
-    assert model is not None
+    minmax_x = app.state.minmax_x
+    minmax_y = app.state.minmax_y
+    onehotencoder = app.state.onehotencoder
 
-    # preprocess input data
+    x_transformed = minmax_x.transform(df[CONT_COLS])
+    cntry_transformed = onehotencoder.transform(df[CATEG_COLS])
+    x_transformed = np.concatenate([x_transformed, cntry_transformed], axis=1)
+    y_pred = model.predict(x_transformed)[:, np.newaxis]
+    y_pred = np.round(minmax_y.inverse_transform(y_pred))
+    number_y_pred = int(y_pred[0][0])
 
-    my_pipeline = pickle.load(open("/pipelines/pipeline.pkl","rb"))
-
-    x_pred_preproc = my_pipeline.transform(X_pred)
-
-    #import ipdb; ipdb.set_trace()
-
-    # Making the prediction
-    y_pred = model.predict(x_pred_preproc[:, :-1])[0]
-
-    # Rounding the predictions to the nearest integer and constraining them to the range [0, 10]
-    y_pred_constrained = int(np.clip(np.round(y_pred), 0, 10))
-
-    # TODO: create the STATE_OF_HAPPINESS variable in params.py
-    print(f"You are {STATE_OF_HAPPINESS[y_pred_constrained]}." )
-    #return y_pred_constrained
-
-    # TODO: ameliorate the display of info
-    print("\n✅ prediction done: ", y_pred, y_pred.shape, "\n")
-    prediction_done = f'0 to 10: {y_pred_constrained} - {STATE_OF_HAPPINESS[y_pred_constrained]}'
-
-    return dict(fare_amount=str(prediction_done))
+    print("\n✅ prediction done: ", number_y_pred, "\n")
+    prediction_done = f'0 to 10: {number_y_pred} - You are {STATE_OF_HAPPINESS[number_y_pred]}'
+    return prediction_done
 
 @app.get("/")
 def root():
