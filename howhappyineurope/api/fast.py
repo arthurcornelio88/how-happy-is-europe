@@ -62,11 +62,6 @@ def predict(
     print("\n✅ prediction done: ", number_y_pred, "\n")
     prediction_done = f'0 to 10: {number_y_pred} - You are {STATE_OF_HAPPINESS[number_y_pred]}'
     return prediction_done
-    #dict(happiness=str(int(y_pred[0][0])))
-
-    # # TODO: create the STATE_OF_HAPPINESS variable in params.py
-    # print(f"You are {STATE_OF_HAPPINESS[y_pred_constrained]}." )
-
 
 @app.get("/")
 def root():

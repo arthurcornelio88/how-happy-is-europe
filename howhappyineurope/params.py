@@ -5,21 +5,13 @@ import pandas as pd
 GAR_IMAGE="how-happy-in-europe"
 ROOT_DIR = "howhappyineurope"
 
-#1 to 4 : unhappy
-#5 to 7 : neutral
-#8 to 10 : happy
+#STATE_OF_HAPPINESS[0] : unhappy
+#STATE_OF_HAPPINESS[1] : neutral
+#STATE_OF_HAPPINESS[2] : happy
 STATE_OF_HAPPINESS = [
     "unhappy...",
-    "unhappy...",
-    "unhappy...",
-    "unhappy...",
-    "neutral.",
-    "neutral.",
-    "neutral.",
     "neutral.",
     "happy!",
-    "happy!",
-    "happy!"
 ]
 
 FEATURES_DICT = {
