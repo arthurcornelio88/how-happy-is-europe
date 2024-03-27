@@ -65,5 +65,5 @@ for column in X_PRED.columns:
 GAR_IMAGE="how-happy-in-europe"
 ROOT_DIR = "howhappyineurope"
 
-with open(f"{ROOT_DIR}/data/features_table.json", 'r') as file:
+with open("data/features_table.json", 'r') as file:
     FEATURES_TABLE = json.load(file)

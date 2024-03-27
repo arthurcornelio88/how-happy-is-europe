@@ -6,7 +6,7 @@ from howhappyineurope.params import FEATURES_DICT, ROOT_DIR
 
 def load_data():
     data = pd.read_csv(
-        f"{ROOT_DIR}/data/20240319_ESS10_manually-filtered_arthurcornelio88.csv"
+        f"data/20240319_ESS10_manually-filtered_arthurcornelio88.csv"
     ).reset_index(drop=True)
     return data[~data["happy"].isin([77, 88, 99])]
 
