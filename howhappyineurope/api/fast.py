@@ -60,7 +60,7 @@ def predict(
     number_y_pred = int(y_pred[0][0])
 
     print("\n✅ prediction done: ", number_y_pred, "\n")
-    prediction_done = f'0 to 10: {number_y_pred} - You are {STATE_OF_HAPPINESS[number_y_pred]}'
+    prediction_done = f'You are {STATE_OF_HAPPINESS[number_y_pred]}'
     return prediction_done
 
 @app.get("/")
