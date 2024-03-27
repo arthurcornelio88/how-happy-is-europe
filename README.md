@@ -1,4 +1,5 @@
-How Happy in Europe: Predicting Happiness from the European Social Survey 10 (2020-2022) Data
+# How Happy in Europe: Predicting Happiness from the European Social Survey 10 (2020-2022)
+
 
 Introduction
 This repository contains the code and resources for predicting happiness levels in Europe using data from the European Social Survey 10, conducted between 2020 and 2022. The goal of this project is to explore factors that influence happiness and build a predictive model to forecast happiness levels across different European countries.
